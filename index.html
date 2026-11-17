@@ -100,8 +100,9 @@ h2.sec::before{content:"";width:10px;height:22px;background:var(--accent);displa
 .one p{margin:0;font-weight:700;font-size:16px}
 .copy{justify-self:start;border:0;background:var(--ink);color:var(--paper);font:inherit;font-size:12px;font-weight:700;padding:5px 10px;cursor:pointer}
 .sub{font-size:13px;font-weight:900;margin:4px 0 -4px;color:var(--muted);letter-spacing:.06em}
-.nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.nav a{color:var(--accent-ink);font-weight:700;font-size:13px;text-decoration:none;border:2px solid rgba(255,255,255,.7);padding:3px 10px}
+.nav{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.nav a{color:var(--accent-ink);font-weight:700;font-size:12px;text-decoration:none;border:2px solid rgba(255,255,255,.7);padding:3px 7px;white-space:nowrap}
+.nav a.home{background:rgba(0,0,0,.25);border-color:transparent}
 .nav a[aria-current="page"]{background:#fff;color:var(--accent)}
 .list{display:grid;gap:10px}
 .row{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);padding:12px 14px;color:inherit;text-decoration:none}
@@ -136,7 +137,7 @@ h2.sec::before{content:"";width:10px;height:22px;background:var(--accent);displa
 <body>
 <header class="mast"><div class="wrap">
   <div><div class="logo"><small>AI編集部がお届けする内分泌の最新知見</small>週刊ENDO通信</div>
-  <nav class="nav" aria-label="サイト内"><a href="#" id="nav-latest">最新号</a><a href="#archive" id="nav-archive">バックナンバー</a><a href="#classics" id="nav-classics">必読ライブラリ</a></nav></div>
+  <nav class="nav" aria-label="サイト内"><a href="https://20qolufiofleity14-lab.github.io/Academylab/" id="nav-home" class="home">← アカデミー</a><a href="#" id="nav-latest">最新号</a><a href="#archive" id="nav-archive">バックナンバー</a><a href="#classics" id="nav-classics">必読ライブラリ</a></nav></div>
   <div class="issue" id="issue"></div>
 </div></header>
 <div class="ticker" aria-hidden="true"><span id="ticker"></span></div>
@@ -272,6 +273,7 @@ document.body.addEventListener('click',e=>{const h=e.target.closest('.hit');if(h
  const c=e.target.closest('#chips .chip');if(c){filt=c.dataset.f;document.querySelectorAll('#chips .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));renderGrid();return;}
  const d=e.target.closest('#cchips .chip');if(d){cfilt=d.dataset.f;renderLibrary();}});
 $('q').addEventListener('input',doSearch);
+try{const h=localStorage.getItem('hub_home_url');if(h&&/^https:\/\/20qolufiofleity14-lab\.github\.io\//.test(h))$('nav-home').href=h;}catch(e){}
 window.addEventListener('hashchange',()=>{closeS();route();scrollTo(0,0);});
 Promise.all([fetch('data/issues.json').then(r=>r.json()),fetch('data/classics.json').then(r=>r.ok?r.json():[]).catch(()=>[])])
  .then(([i,c])=>{ISSUES=i.sort((a,b)=>b.id.localeCompare(a.id));CLASSICS=c;route();})
