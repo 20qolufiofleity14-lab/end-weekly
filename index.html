@@ -246,7 +246,7 @@ function openA(id){const a=cur.articles.find(x=>x.id===id);if(!a)return;logRead(
   <div><dt>校閲メモ</dt><dd>${esc(a.check)}</dd></div>
  </dl>
  <p class="src">${esc(a.journal)}　<a href="${a.url?esc(a.url):`https://pubmed.ncbi.nlm.nih.gov/${esc(a.pmid)}/`}" target="_blank" rel="noopener">${a.pmid?`PubMedで読む（PMID ${esc(a.pmid)}）`:'出典を読む'}</a>${a.doi?` ・ <a href="https://doi.org/${esc(a.doi)}" target="_blank" rel="noopener">DOI</a>`:''}</p></div>`;
- $('sheet').classList.add('open');$('cl').focus();$('cl').onclick=closeS;
+ $('sheet').classList.add('open');$('panel').scrollTop=0;try{$('cl').focus({preventScroll:true});}catch(e){}requestAnimationFrame(()=>{$('panel').scrollTop=0;});$('cl').onclick=closeS;
  $('cp').onclick=async e=>{try{await navigator.clipboard.writeText(a.oneline+'（'+a.journal+(a.pmid?' PMID '+a.pmid:'')+'）');e.target.textContent='コピーしました';}catch(_){e.target.textContent='長押しで選んでコピーしてね';}};}
 /* アカデミー（同じ github.io）のランプ用：記事を開いた日を記録 */
 function logRead(id){try{const K='endo_news_v1';const o=JSON.parse(localStorage.getItem(K)||'{}');o.log=o.log||{};const d=new Date(),k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();const L=o.log[k]=o.log[k]||[];const u=cur.id+':'+id;if(!L.includes(u))L.push(u);localStorage.setItem(K,JSON.stringify(o));}catch(e){}}
