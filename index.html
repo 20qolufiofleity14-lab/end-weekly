@@ -115,6 +115,14 @@ h2.sec::before{content:"";width:10px;height:22px;background:var(--accent);displa
 .ccard a{color:var(--accent);font-weight:700;font-size:13px}
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
 .view[hidden]{display:none}
+.tile.read,.top.read{opacity:.62}
+.tile.read .art,.top.read .art{filter:grayscale(.85)}
+.tile.read:hover{opacity:.85}
+.readmark{position:absolute;right:10px;top:10px;font-size:12px;font-weight:900;color:#fff;background:rgba(0,0,0,.55);padding:2px 8px}
+.prog{display:flex;align-items:center;gap:10px;margin:-4px 0 14px;font-size:13px;font-weight:700;color:var(--muted)}
+.prog .bar{flex:1;height:8px;background:var(--line);overflow:hidden}
+.prog .bar i{display:block;height:100%;background:var(--accent)}
+.prog.done{color:var(--accent)}
 .foot{font-size:12px;color:var(--muted);margin-top:32px;border-top:1px solid var(--line);padding-top:12px}
 @media (min-width:760px){.sheet{align-items:center}.panel{max-height:88%}}
 </style>
@@ -133,6 +141,7 @@ h2.sec::before{content:"";width:10px;height:22px;background:var(--accent);displa
   <div class="room" id="room"></div>
   <h2 class="sec">今週のニュース</h2>
   <div class="chips" id="chips" role="group" aria-label="分野で絞り込む"></div>
+  <div class="prog" id="prog"></div>
   <div class="grid" id="grid"></div>
   <div id="classics-band"></div>
   <h2 class="sec">OpenEvidence 深掘り</h2>
@@ -170,14 +179,17 @@ function motif(c,seed){
 }
 const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);
 const badges=(a,k)=>(a.tags||[]).map(t=>`<span class="badge" style="--k:${k}">${esc(t)}</span>`).join('');
+function readSet(){try{const o=JSON.parse(localStorage.getItem('endo_news_v1')||'{}');const s=new Set();for(const k in (o.log||{}))(o.log[k]||[]).forEach(x=>s.add(x));return s;}catch(e){return new Set();}}
+const isRead=(I,id)=>readSet().has(I.id+':'+id);
+const rmark=r=>r?'<span class="readmark">既読 ✓</span>':'';
 let ISSUES=[],CLASSICS=[],cur=null,filt='all',cfilt='all';
 function renderIssue(I){
   cur=I;const A=I.articles;
   $('issue').innerHTML=`<b>${esc(I.issue)}</b>${esc(I.date)}`;
   $('ticker').textContent=(A.map(a=>'■ '+a.head).join('　　')+'　　').repeat(2);
   const T=A.find(a=>a.id===I.top)||A[0];const k=cat(T.cat).k;
-  $('top').innerHTML=`<button class="top" data-id="${T.id}" style="--k:${k}">
-   <div class="art">${motif(T.cat,7)}<span class="cat">${cat(T.cat).n}</span></div>
+  const tr=isRead(I,T.id);$('top').innerHTML=`<button class="top${tr?' read':''}" data-id="${T.id}" style="--k:${k}">
+   <div class="art">${motif(T.cat,7)}<span class="cat">${cat(T.cat).n}</span>${rmark(tr)}</div>
    <div class="txt"><div class="badges"><span class="badge hot">今週のトップ</span>${badges(T,k)}</div>
    <h3>${esc(T.head)}</h3><p>${esc(T.lead)}</p><div class="stars">${stars(T.score)}</div><div style="font-size:12px;color:var(--muted)">${esc(T.journal)}</div></div></button>`;
   $('room').innerHTML=(I.room||[]).map(l=>`<div class="line"><span class="who" style="--k:${l.cat?cat(l.cat).k:'var(--ink)'}">${esc(l.who)}</span><p>${esc(l.say)}</p></div>`).join('');
@@ -190,9 +202,11 @@ function renderIssue(I){
   $('foot').textContent=I.foot||'';
 }
 function renderGrid(){
-  const T=cur.top;const list=cur.articles.filter(a=>a.id!==T&&(filt==='all'||a.cat===filt));
-  $('grid').innerHTML=list.map((a,i)=>{const k=cat(a.cat).k;return `<button class="tile" data-id="${a.id}" style="--k:${k}">
-   <div class="art">${motif(a.cat,i+3)}<span class="cat">${cat(a.cat).n}</span></div>
+  const T=cur.top;const list=cur.articles.filter(a=>a.id!==T&&(filt==='all'||a.cat===filt));const rs=readSet();const rd=a=>rs.has(cur.id+':'+a.id);const nr=cur.articles.filter(rd).length,N=cur.articles.length;
+  $('prog').className='prog'+(nr===N?' done':'');$('prog').innerHTML=`<span>${nr===N?'今号はぜんぶ読んだ！':'今号 '+nr+' / '+N+' 本 読んだ'}</span><span class="bar"><i style="width:${Math.round(nr/N*100)}%"></i></span>`;
+  const T0=$('top').querySelector('.top');if(T0&&rd({id:T0.dataset.id})&&!T0.classList.contains('read')){T0.classList.add('read');T0.querySelector('.art').insertAdjacentHTML('beforeend',rmark(true));}
+  $('grid').innerHTML=list.map((a,i)=>{const k=cat(a.cat).k;const r=rd(a);return `<button class="tile${r?' read':''}" data-id="${a.id}" style="--k:${k}">
+   <div class="art">${motif(a.cat,i+3)}<span class="cat">${cat(a.cat).n}</span>${rmark(r)}</div>
    <div class="body"><div class="badges">${badges(a,k)}</div><h4>${esc(a.head)}</h4><div class="stars">${stars(a.score)}</div><div class="meta">${esc(a.journal)}</div></div></button>`}).join('')||'<p>この分野は今号の掲載なし。</p>';
 }
 function ccard(c){const k=cat(c.cat).k;return `<article class="ccard" style="--k:${k}"><div class="badges"><span class="badge" style="--k:${k}">${cat(c.cat).n}</span><span class="badge ghost">${esc(c.journal)} ${esc(c.year)}</span></div>
@@ -209,7 +223,7 @@ function route(){
   ['issue','archive','classics'].forEach(v=>$('v-'+v).hidden=true);
   ['latest','archive','classics'].forEach(v=>$('nav-'+v).removeAttribute('aria-current'));
   if(h==='archive'){$('v-archive').hidden=false;$('nav-archive').setAttribute('aria-current','page');
-    $('archive').innerHTML=ISSUES.map(I=>`<a class="row" href="#issue-${I.id}"><b>${esc(I.issue)}</b><span>${esc(I.date)}・${I.articles.length}本・トップ「${esc((I.articles.find(a=>a.id===I.top)||I.articles[0]).head)}」</span></a>`).join('');return;}
+    $('archive').innerHTML=ISSUES.map(I=>`<a class="row" href="#issue-${I.id}"><b>${esc(I.issue)}</b><span>${esc(I.date)}・${I.articles.filter(a=>readSet().has(I.id+':'+a.id)).length}/${I.articles.length}本 既読・トップ「${esc((I.articles.find(a=>a.id===I.top)||I.articles[0]).head)}」</span></a>`).join('');return;}
   if(h==='classics'){$('v-classics').hidden=false;$('nav-classics').setAttribute('aria-current','page');renderLibrary();return;}
   const id=h.startsWith('issue-')?h.slice(6):null;const I=ISSUES.find(x=>x.id===id)||ISSUES[0];
   if(I===ISSUES[0])$('nav-latest').setAttribute('aria-current','page');
@@ -236,7 +250,7 @@ function openA(id){const a=cur.articles.find(x=>x.id===id);if(!a)return;logRead(
  $('cp').onclick=async e=>{try{await navigator.clipboard.writeText(a.oneline+'（'+a.journal+(a.pmid?' PMID '+a.pmid:'')+'）');e.target.textContent='コピーしました';}catch(_){e.target.textContent='長押しで選んでコピーしてね';}};}
 /* アカデミー（同じ github.io）のランプ用：記事を開いた日を記録 */
 function logRead(id){try{const K='endo_news_v1';const o=JSON.parse(localStorage.getItem(K)||'{}');o.log=o.log||{};const d=new Date(),k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();const L=o.log[k]=o.log[k]||[];const u=cur.id+':'+id;if(!L.includes(u))L.push(u);localStorage.setItem(K,JSON.stringify(o));}catch(e){}}
-function closeS(){$('sheet').classList.remove('open');}
+function closeS(){const w=$('sheet').classList.contains('open');$('sheet').classList.remove('open');if(w&&cur&&!$('v-issue').hidden)renderGrid();}
 $('sheet').addEventListener('click',e=>{if(e.target===$('sheet'))closeS();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeS();});
 document.body.addEventListener('click',e=>{const b=e.target.closest('.top,.tile');if(b){openA(b.dataset.id);return;}
