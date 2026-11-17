@@ -1,6 +1,249 @@
 <!DOCTYPE html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>小児内分泌ウィークリー</title>
-<style>body{margin:0;font-family:system-ui,-apple-system,"Hiragino Sans",sans-serif;background:#111;color:#fff;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center}
-h1{font-size:2rem;margin:0 0 .5rem;background:linear-gradient(90deg,#ff3d6e,#ffb400);-webkit-background-clip:text;color:transparent}p{color:#bbb}</style></head>
-<body><div><h1>小児内分泌ウィークリー</h1><p>創刊準備中 — 毎週月曜朝に更新</p></div></body></html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>週刊ENDO通信</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* layout: masthead → top story → editorial room → category chips → tile grid; tap opens a sheet */
+:root{
+  --paper:#f4f1ea; --ink:#16151a; --muted:#5d5a63; --line:#d9d4c8; --card:#ffffff;
+  --accent:#e6202a; --accent-ink:#ffffff;
+  --c-dm:#e8862a; --c-thy:#1f8a70; --c-gro:#2d5bd7; --c-adr:#b0337f; --c-met:#7a5c1e; --c-oe:#6b4fd8;
+  --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#121116; --ink:#f1eee8; --muted:#a8a3ad; --line:#2c2a33; --card:#1c1b22;
+  --accent:#ff4a52; --c-dm:#f29a45; --c-thy:#3fb894; --c-gro:#6b8dff; --c-adr:#e060ad; --c-met:#c9a24f; --c-oe:#9d86ff; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --paper:#121116; --ink:#f1eee8; --muted:#a8a3ad; --line:#2c2a33; --card:#1c1b22;
+  --accent:#ff4a52; --c-dm:#f29a45; --c-thy:#3fb894; --c-gro:#6b8dff; --c-adr:#e060ad; --c-met:#c9a24f; --c-oe:#9d86ff; color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 48px}
+/* masthead */
+.mast{background:var(--accent);color:var(--accent-ink)}
+.mast .wrap{padding-top:14px;padding-bottom:12px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-family:var(--display);font-size:clamp(30px,7vw,52px);line-height:1;letter-spacing:.01em}
+.logo small{display:block;font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.2em;opacity:.9;margin-bottom:4px}
+.issue{font-weight:700;font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+.issue b{display:block;font-family:var(--display);font-weight:400;font-size:20px}
+.ticker{background:var(--ink);color:var(--paper);font-size:13px;font-weight:700;overflow:hidden;white-space:nowrap}
+.ticker span{display:inline-block;padding:7px 0;animation:tick 40s linear infinite}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ticker span{animation:none}}
+/* sections */
+h2.sec{font-family:var(--display);font-weight:400;font-size:20px;margin:28px 0 12px;display:flex;align-items:center;gap:10px}
+h2.sec::before{content:"";width:10px;height:22px;background:var(--accent);display:inline-block}
+/* top story */
+.top{display:grid;grid-template-columns:1.25fr 1fr;gap:0;background:var(--card);border:2px solid var(--ink);cursor:pointer;margin-top:20px;text-align:left;width:100%;padding:0;color:inherit;font:inherit}
+.top:focus-visible,.tile:focus-visible,.chip:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.top .art{min-height:240px}
+.top .txt{padding:20px;display:flex;flex-direction:column;gap:10px}
+.top h3{font-family:var(--display);font-weight:400;font-size:clamp(22px,3.4vw,32px);line-height:1.25;margin:0;text-wrap:balance}
+.top p{margin:0;color:var(--muted)}
+@media (max-width:700px){.top{grid-template-columns:1fr}.top .art{min-height:180px}}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:900;padding:3px 8px;letter-spacing:.06em;color:#fff;background:var(--k,var(--accent))}
+.badge.hot{background:var(--accent)} .badge.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+/* editorial room */
+.room{background:var(--card);border:1px solid var(--line);padding:16px;display:grid;gap:10px}
+.line{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
+.who{font-size:11px;font-weight:900;color:#fff;padding:4px 8px;white-space:nowrap;background:var(--k,var(--ink))}
+.line p{margin:0;font-size:14px}
+/* chips + grid */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:2px solid var(--ink);background:transparent;color:var(--ink);font:inherit;font-weight:700;font-size:13px;padding:5px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.tile{background:var(--card);border:1px solid var(--line);cursor:pointer;display:flex;flex-direction:column;text-align:left;padding:0;color:inherit;font:inherit;transition:transform .15s}
+.tile:hover{transform:translateY(-2px)}
+.tile .art{height:130px;border-bottom:4px solid var(--k)}
+.tile .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tile h4{margin:0;font-size:16px;font-weight:900;line-height:1.4;text-wrap:balance}
+.tile .meta{font-size:12px;color:var(--muted);margin-top:auto}
+.stars{color:var(--accent);letter-spacing:1px;font-size:12px}
+.art{position:relative;overflow:hidden;background:var(--k)}
+.art svg{position:absolute;inset:0;width:100%;height:100%}
+.art .cat{position:absolute;left:10px;top:10px;font-family:var(--display);font-size:13px;color:#fff;background:rgba(0,0,0,.35);padding:2px 8px}
+/* OE box */
+.oe{border:2px dashed var(--c-oe);padding:16px;background:var(--card)}
+.oe h3{margin:0 0 6px;font-size:16px;color:var(--c-oe)}
+.oe p{margin:0;font-size:14px;color:var(--muted)}
+/* sheet */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.sheet.open{display:flex}
+.panel{background:var(--paper);width:100%;max-width:760px;max-height:92%;overflow:auto;border-top:6px solid var(--k)}
+.panel .art{height:150px}
+.panel .in{padding:18px 18px 28px;display:grid;gap:14px}
+.panel h3{font-family:var(--display);font-weight:400;font-size:24px;line-height:1.3;margin:0;text-wrap:balance}
+.panel .en{font-size:13px;color:var(--muted);margin:0}
+.kv{display:grid;gap:10px}
+.kv div{background:var(--card);border-left:4px solid var(--k);padding:10px 12px}
+.kv dt{font-size:11px;font-weight:900;letter-spacing:.08em;color:var(--muted)}
+.kv dd{margin:2px 0 0;font-size:15px}
+.close{position:sticky;top:8px;display:block;margin:8px 8px -44px auto;border:0;background:var(--ink);color:var(--paper);font:inherit;font-weight:700;padding:6px 12px;cursor:pointer;z-index:2}
+.src a{color:var(--accent);font-weight:700}
+.pts{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.pts li{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:start;background:var(--card);padding:10px 12px;border:1px solid var(--line)}
+.pts b{font-size:12px;font-weight:900;color:#fff;background:var(--k);text-align:center;padding:3px 0}
+.pts li:last-child b{background:var(--accent)}
+.pts span{font-size:15px}
+.one{border:2px solid var(--ink);padding:12px 14px;display:grid;gap:8px;background:var(--card)}
+.one small{font-size:11px;font-weight:900;letter-spacing:.08em;color:var(--muted)}
+.one p{margin:0;font-weight:700;font-size:16px}
+.copy{justify-self:start;border:0;background:var(--ink);color:var(--paper);font:inherit;font-size:12px;font-weight:700;padding:5px 10px;cursor:pointer}
+.sub{font-size:13px;font-weight:900;margin:4px 0 -4px;color:var(--muted);letter-spacing:.06em}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.nav a{color:var(--accent-ink);font-weight:700;font-size:13px;text-decoration:none;border:2px solid rgba(255,255,255,.7);padding:3px 10px}
+.nav a[aria-current="page"]{background:#fff;color:var(--accent)}
+.list{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);padding:12px 14px;color:inherit;text-decoration:none}
+.row b{font-family:var(--display);font-weight:400;font-size:18px;font-variant-numeric:tabular-nums}
+.row span{font-size:14px;color:var(--muted)}
+.jgroup h3{font-family:var(--display);font-weight:400;font-size:18px;margin:18px 0 8px}
+.ccard{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--k);padding:12px 14px;display:grid;gap:6px}
+.ccard h4{margin:0;font-size:16px;font-weight:900}
+.ccard p{margin:0;font-size:14px}
+.ccard .en{font-size:12px;color:var(--muted)}
+.ccard a{color:var(--accent);font-weight:700;font-size:13px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.view[hidden]{display:none}
+.foot{font-size:12px;color:var(--muted);margin-top:32px;border-top:1px solid var(--line);padding-top:12px}
+@media (min-width:760px){.sheet{align-items:center}.panel{max-height:88%}}
+</style>
+</head>
+<body>
+<header class="mast"><div class="wrap">
+  <div><div class="logo"><small>AI編集部がお届けする内分泌の最新知見</small>週刊ENDO通信</div>
+  <nav class="nav" aria-label="サイト内"><a href="#" id="nav-latest">最新号</a><a href="#archive" id="nav-archive">バックナンバー</a><a href="#classics" id="nav-classics">必読ライブラリ</a></nav></div>
+  <div class="issue" id="issue"></div>
+</div></header>
+<div class="ticker" aria-hidden="true"><span id="ticker"></span></div>
+<main class="wrap">
+ <section class="view" id="v-issue">
+  <div id="top"></div>
+  <h2 class="sec">今週の編集会議</h2>
+  <div class="room" id="room"></div>
+  <h2 class="sec">今週のニュース</h2>
+  <div class="chips" id="chips" role="group" aria-label="分野で絞り込む"></div>
+  <div class="grid" id="grid"></div>
+  <div id="classics-band"></div>
+  <h2 class="sec">OpenEvidence 深掘り</h2>
+  <div class="oe" id="oe"></div>
+  <p class="foot" id="foot"></p>
+ </section>
+ <section class="view" id="v-archive" hidden>
+  <h2 class="sec">バックナンバー</h2>
+  <div class="list" id="archive"></div>
+ </section>
+ <section class="view" id="v-classics" hidden>
+  <h2 class="sec">必読ライブラリ（雑誌別）</h2>
+  <div class="chips" id="cchips" role="group" aria-label="分野で絞り込む"></div>
+  <div id="library"></div>
+ </section>
+</main>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-title"><div class="panel" id="panel"></div></div>
+<script>
+const CAT={dm:{n:'糖尿病・肥満',k:'var(--c-dm)'},thy:{n:'甲状腺・骨Ca',k:'var(--c-thy)'},gro:{n:'成長・思春期',k:'var(--c-gro)'},adr:{n:'副腎・性分化',k:'var(--c-adr)'},met:{n:'先天代謝',k:'var(--c-met)'}};
+const cat=c=>CAT[c]||{n:c,k:'var(--ink)'};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=id=>document.getElementById(id);
+function motif(c,seed){
+  let r=seed*9301+49297;const rnd=()=>((r=(r*9301+49297)%233280)/233280);
+  const w='rgba(255,255,255,';let g='';
+  for(let i=0;i<14;i++){g+=`<circle cx="${rnd()*400}" cy="${rnd()*200}" r="${4+rnd()*30}" fill="${w}${.06+rnd()*.12})"/>`}
+  const icons={
+    dm:`<g transform="translate(300 100)" fill="none" stroke="#fff" stroke-width="5"><path d="M0-55C22-25 32-8 32 12a32 32 0 0 1-64 0c0-20 10-37 32-67z" fill="${w}.25)"/><path d="M-14 14h28M0 0v28"/></g>`,
+    thy:`<g transform="translate(300 100)" fill="${w}.25)" stroke="#fff" stroke-width="5"><path d="M-6 0C-20-40-60-50-62-10s30 60 56 30z"/><path d="M6 0C20-40 60-50 62-10s-30 60-56 30z"/><rect x="-8" y="-6" width="16" height="22" rx="6"/></g>`,
+    gro:`<g transform="translate(250 30)" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"><path d="M0 140C40 120 60 60 120 20"/><path d="M0 150C45 135 70 85 125 55" stroke-opacity=".5"/><circle cx="120" cy="20" r="8" fill="#fff"/><path d="M-10 0v160h150" stroke-opacity=".6"/></g>`,
+    adr:`<g transform="translate(300 105)" stroke="#fff" stroke-width="5" fill="${w}.25)"><path d="M-40 10C-40-30 0-60 0-60S40-30 40 10s-20 40-40 40-40-10-40-40z"/><path d="M-30-38L-10-62L10-56L30-36" fill="none"/></g>`,
+    met:`<g transform="translate(300 100)" stroke="#fff" stroke-width="5" fill="${w}.2)"><path d="M0-40L35-20V20L0 40L-35 20V-20Z"/><path d="M35-20L70-40M-35 20L-70 40M0 40V75" fill="none"/><circle cx="70" cy="-40" r="8" fill="#fff"/><circle cx="-70" cy="40" r="8" fill="#fff"/></g>`
+  };
+  return `<svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${g}${icons[c]||''}</svg>`;
+}
+const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+const badges=(a,k)=>(a.tags||[]).map(t=>`<span class="badge" style="--k:${k}">${esc(t)}</span>`).join('');
+let ISSUES=[],CLASSICS=[],cur=null,filt='all',cfilt='all';
+function renderIssue(I){
+  cur=I;const A=I.articles;
+  $('issue').innerHTML=`<b>${esc(I.issue)}</b>${esc(I.date)}`;
+  $('ticker').textContent=(A.map(a=>'■ '+a.head).join('　　')+'　　').repeat(2);
+  const T=A.find(a=>a.id===I.top)||A[0];const k=cat(T.cat).k;
+  $('top').innerHTML=`<button class="top" data-id="${T.id}" style="--k:${k}">
+   <div class="art">${motif(T.cat,7)}<span class="cat">${cat(T.cat).n}</span></div>
+   <div class="txt"><div class="badges"><span class="badge hot">今週のトップ</span>${badges(T,k)}</div>
+   <h3>${esc(T.head)}</h3><p>${esc(T.lead)}</p><div class="stars">${stars(T.score)}</div><div style="font-size:12px;color:var(--muted)">${esc(T.journal)}</div></div></button>`;
+  $('room').innerHTML=(I.room||[]).map(l=>`<div class="line"><span class="who" style="--k:${l.cat?cat(l.cat).k:'var(--ink)'}">${esc(l.who)}</span><p>${esc(l.say)}</p></div>`).join('');
+  const used=[...new Set(A.map(a=>a.cat))];
+  $('chips').innerHTML=[['all','すべて'],...used.map(c=>[c,cat(c).n])].map(([c,n])=>`<button class="chip" data-f="${c}" aria-pressed="${c===filt}">${n}</button>`).join('');
+  renderGrid();
+  const cl=CLASSICS.filter(c=>c.issue===I.id);
+  $('classics-band').innerHTML=cl.length?`<h2 class="sec">今週の必読クラシック</h2><div class="cgrid">${cl.map(ccard).join('')}</div>`:'';
+  $('oe').innerHTML=I.oe?`<h3>${esc(I.oe.title)}</h3><p>${esc(I.oe.body)}</p>${I.oe.items?I.oe.items.map(x=>`<p style="margin-top:8px;color:var(--ink)"><b>${esc(x.q)}</b><br>${esc(x.a)}</p>`).join(''):''}`:'<p>今号はお休み（隔週掲載）。</p>';
+  $('foot').textContent=I.foot||'';
+}
+function renderGrid(){
+  const T=cur.top;const list=cur.articles.filter(a=>a.id!==T&&(filt==='all'||a.cat===filt));
+  $('grid').innerHTML=list.map((a,i)=>{const k=cat(a.cat).k;return `<button class="tile" data-id="${a.id}" style="--k:${k}">
+   <div class="art">${motif(a.cat,i+3)}<span class="cat">${cat(a.cat).n}</span></div>
+   <div class="body"><div class="badges">${badges(a,k)}</div><h4>${esc(a.head)}</h4><div class="stars">${stars(a.score)}</div><div class="meta">${esc(a.journal)}</div></div></button>`}).join('')||'<p>この分野は今号の掲載なし。</p>';
+}
+function ccard(c){const k=cat(c.cat).k;return `<article class="ccard" style="--k:${k}"><div class="badges"><span class="badge" style="--k:${k}">${cat(c.cat).n}</span><span class="badge ghost">${esc(c.journal)} ${esc(c.year)}</span></div>
+ <h4>${esc(c.head)}</h4><p class="en">${esc(c.title)}</p><p><b>なぜ必読：</b>${esc(c.why)}</p><p><b>結論：</b>${esc(c.point)}</p><p><b>今の診療とのつながり：</b>${esc(c.now)}</p>
+ <p><a href="https://pubmed.ncbi.nlm.nih.gov/${esc(c.pmid)}/" target="_blank" rel="noopener">PubMed</a>${c.doi?` ・ <a href="https://doi.org/${esc(c.doi)}" target="_blank" rel="noopener">DOI</a>`:''}${c.pmc?` ・ <a href="https://pmc.ncbi.nlm.nih.gov/articles/${esc(c.pmc)}/" target="_blank" rel="noopener">無料全文</a>`:''}</p></article>`}
+function renderLibrary(){
+  const used=[...new Set(CLASSICS.map(c=>c.cat))];
+  $('cchips').innerHTML=[['all','すべて'],...used.map(c=>[c,cat(c).n])].map(([c,n])=>`<button class="chip" data-f="${c}" aria-pressed="${c===cfilt}">${n}</button>`).join('');
+  const L=CLASSICS.filter(c=>cfilt==='all'||c.cat===cfilt);const by={};L.forEach(c=>(by[c.journal]=by[c.journal]||[]).push(c));
+  $('library').innerHTML=Object.keys(by).sort().map(j=>`<div class="jgroup"><h3>${esc(j)}（${by[j].length}）</h3><div class="cgrid">${by[j].map(ccard).join('')}</div></div>`).join('')||'<p>まだ登録がありません。毎号2本ずつ増えていきます。</p>';
+}
+function route(){
+  const h=location.hash.slice(1);
+  ['issue','archive','classics'].forEach(v=>$('v-'+v).hidden=true);
+  ['latest','archive','classics'].forEach(v=>$('nav-'+v).removeAttribute('aria-current'));
+  if(h==='archive'){$('v-archive').hidden=false;$('nav-archive').setAttribute('aria-current','page');
+    $('archive').innerHTML=ISSUES.map(I=>`<a class="row" href="#issue-${I.id}"><b>${esc(I.issue)}</b><span>${esc(I.date)}・${I.articles.length}本・トップ「${esc((I.articles.find(a=>a.id===I.top)||I.articles[0]).head)}」</span></a>`).join('');return;}
+  if(h==='classics'){$('v-classics').hidden=false;$('nav-classics').setAttribute('aria-current','page');renderLibrary();return;}
+  const id=h.startsWith('issue-')?h.slice(6):null;const I=ISSUES.find(x=>x.id===id)||ISSUES[0];
+  if(I===ISSUES[0])$('nav-latest').setAttribute('aria-current','page');
+  $('v-issue').hidden=false;filt='all';renderIssue(I);
+}
+function openA(id){const a=cur.articles.find(x=>x.id===id);if(!a)return;const k=cat(a.cat).k;$('panel').style.setProperty('--k',k);
+ $('panel').innerHTML=`<button class="close" id="cl">閉じる</button><div class="art" style="--k:${k}">${motif(a.cat,11)}<span class="cat">${cat(a.cat).n}</span></div>
+ <div class="in"><div class="badges">${badges(a,k)}<span class="badge ghost">重要度 ${stars(a.score)}</span></div>
+ <h3 id="sh-title">${esc(a.head)}</h3><p class="en">${esc(a.title)}</p>
+ <p class="sub">この論文のポイント</p>
+ <ol class="pts">${(a.points||[]).map(p=>`<li><b>${esc(p[0])}</b><span>${esc(p[1])}</span></li>`).join('')}</ol>
+ <div class="one"><small>他の先生に一言で伝えるなら</small><p>${esc(a.oneline)}</p><button class="copy" id="cp">コピー</button></div>
+ <p class="sub">くわしく</p>
+ <dl class="kv">
+  <div><dt>ひとことで</dt><dd>${esc(a.lead)}</dd></div>
+  <div><dt>研究デザイン・対象</dt><dd>${esc(a.design)}</dd></div>
+  <div><dt>主な結果</dt><dd>${esc(a.result)}</dd></div>
+  <div><dt>臨床ではこう使う</dt><dd>${esc(a.clinic)}</dd></div>
+  <div><dt>ここは割り引いて読む</dt><dd>${esc(a.limit)}</dd></div>
+  <div><dt>校閲メモ</dt><dd>${esc(a.check)}</dd></div>
+ </dl>
+ <p class="src">${esc(a.journal)}　<a href="${a.url?esc(a.url):`https://pubmed.ncbi.nlm.nih.gov/${esc(a.pmid)}/`}" target="_blank" rel="noopener">${a.pmid?`PubMedで読む（PMID ${esc(a.pmid)}）`:'出典を読む'}</a>${a.doi?` ・ <a href="https://doi.org/${esc(a.doi)}" target="_blank" rel="noopener">DOI</a>`:''}</p></div>`;
+ $('sheet').classList.add('open');$('cl').focus();$('cl').onclick=closeS;
+ $('cp').onclick=async e=>{try{await navigator.clipboard.writeText(a.oneline+'（'+a.journal+(a.pmid?' PMID '+a.pmid:'')+'）');e.target.textContent='コピーしました';}catch(_){e.target.textContent='長押しで選んでコピーしてね';}};}
+function closeS(){$('sheet').classList.remove('open');}
+$('sheet').addEventListener('click',e=>{if(e.target===$('sheet'))closeS();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeS();});
+document.body.addEventListener('click',e=>{const b=e.target.closest('.top,.tile');if(b){openA(b.dataset.id);return;}
+ const c=e.target.closest('#chips .chip');if(c){filt=c.dataset.f;document.querySelectorAll('#chips .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));renderGrid();return;}
+ const d=e.target.closest('#cchips .chip');if(d){cfilt=d.dataset.f;renderLibrary();}});
+window.addEventListener('hashchange',()=>{closeS();route();scrollTo(0,0);});
+Promise.all([fetch('data/issues.json').then(r=>r.json()),fetch('data/classics.json').then(r=>r.ok?r.json():[]).catch(()=>[])])
+ .then(([i,c])=>{ISSUES=i.sort((a,b)=>b.id.localeCompare(a.id));CLASSICS=c;route();})
+ .catch(()=>{$('v-issue').innerHTML='<p>データを読み込めませんでした。ページを再読み込みしてください。</p>';});
+</script>
+</body>
+</html>
