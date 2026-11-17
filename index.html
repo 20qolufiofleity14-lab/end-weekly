@@ -123,6 +123,12 @@ h2.sec::before{content:"";width:10px;height:22px;background:var(--accent);displa
 .prog .bar{flex:1;height:8px;background:var(--line);overflow:hidden}
 .prog .bar i{display:block;height:100%;background:var(--accent)}
 .prog.done{color:var(--accent)}
+.search{display:flex;gap:8px;margin-bottom:14px}
+.search input{flex:1;font:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:0}
+.search input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hit{display:grid;gap:4px;text-align:left;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--k);padding:10px 14px;cursor:pointer;color:inherit;font:inherit;width:100%}
+.hit b{font-size:15px}.hit small{font-size:12px;color:var(--muted)}
+.hit.read{opacity:.62}
 .foot{font-size:12px;color:var(--muted);margin-top:32px;border-top:1px solid var(--line);padding-top:12px}
 @media (min-width:760px){.sheet{align-items:center}.panel{max-height:88%}}
 </style>
@@ -149,6 +155,9 @@ h2.sec::before{content:"";width:10px;height:22px;background:var(--accent);displa
   <p class="foot" id="foot"></p>
  </section>
  <section class="view" id="v-archive" hidden>
+  <h2 class="sec">記事をさがす</h2>
+  <div class="search"><input id="q" type="search" placeholder="例：GLP-1、CAH、XLH、MRI" aria-label="全号の記事をキーワードでさがす" autocomplete="off"></div>
+  <div class="list" id="hits"></div>
   <h2 class="sec">バックナンバー</h2>
   <div class="list" id="archive"></div>
  </section>
@@ -218,6 +227,12 @@ function renderLibrary(){
   const L=CLASSICS.filter(c=>cfilt==='all'||c.cat===cfilt);const by={};L.forEach(c=>(by[c.journal]=by[c.journal]||[]).push(c));
   $('library').innerHTML=Object.keys(by).sort().map(j=>`<div class="jgroup"><h3>${esc(j)}（${by[j].length}）</h3><div class="cgrid">${by[j].map(ccard).join('')}</div></div>`).join('')||'<p>まだ登録がありません。毎号2本ずつ増えていきます。</p>';
 }
+function norm(s){return String(s||'').normalize('NFKC').toLowerCase();}
+function doSearch(){const q=norm($('q').value).trim();if(!q){$('hits').innerHTML='';return;}
+ const ws=q.split(/\s+/);const rs=readSet();const out=[];
+ ISSUES.forEach(I=>I.articles.forEach(a=>{const txt=norm([a.head,a.lead,a.title,a.oneline,a.journal,(a.tags||[]).join(' '),cat(a.cat).n,(a.points||[]).map(p=>p[1]).join(' '),a.result,a.clinic].join(' '));
+  if(ws.every(w=>txt.includes(w)))out.push([I,a]);}));
+ $('hits').innerHTML=out.length?`<p style="margin:0;font-size:13px;color:var(--muted)">${out.length}件</p>`+out.map(([I,a])=>`<button class="hit${rs.has(I.id+':'+a.id)?' read':''}" data-iss="${I.id}" data-id="${a.id}" style="--k:${cat(a.cat).k}"><small>${esc(I.issue)}・${cat(a.cat).n}・${esc(a.journal)}${rs.has(I.id+':'+a.id)?'・既読':''}</small><b>${esc(a.head)}</b><small>${esc(a.oneline||a.lead)}</small></button>`).join(''):'<p>見つかりませんでした。別の言葉（英語名や略語）でも試してみてね。</p>';}
 function route(){
   const h=location.hash.slice(1);
   ['issue','archive','classics'].forEach(v=>$('v-'+v).hidden=true);
@@ -250,12 +265,13 @@ function openA(id){const a=cur.articles.find(x=>x.id===id);if(!a)return;logRead(
  $('cp').onclick=async e=>{try{await navigator.clipboard.writeText(a.oneline+'（'+a.journal+(a.pmid?' PMID '+a.pmid:'')+'）');e.target.textContent='コピーしました';}catch(_){e.target.textContent='長押しで選んでコピーしてね';}};}
 /* アカデミー（同じ github.io）のランプ用：記事を開いた日を記録 */
 function logRead(id){try{const K='endo_news_v1';const o=JSON.parse(localStorage.getItem(K)||'{}');o.log=o.log||{};const d=new Date(),k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();const L=o.log[k]=o.log[k]||[];const u=cur.id+':'+id;if(!L.includes(u))L.push(u);localStorage.setItem(K,JSON.stringify(o));}catch(e){}}
-function closeS(){const w=$('sheet').classList.contains('open');$('sheet').classList.remove('open');if(w&&cur&&!$('v-issue').hidden)renderGrid();}
+function closeS(){const w=$('sheet').classList.contains('open');$('sheet').classList.remove('open');if(w&&cur&&!$('v-issue').hidden)renderGrid();if(w&&!$('v-archive').hidden){route();doSearch();}}
 $('sheet').addEventListener('click',e=>{if(e.target===$('sheet'))closeS();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeS();});
-document.body.addEventListener('click',e=>{const b=e.target.closest('.top,.tile');if(b){openA(b.dataset.id);return;}
+document.body.addEventListener('click',e=>{const h=e.target.closest('.hit');if(h){cur=ISSUES.find(x=>x.id===h.dataset.iss);openA(h.dataset.id);return;}const b=e.target.closest('.top,.tile');if(b){openA(b.dataset.id);return;}
  const c=e.target.closest('#chips .chip');if(c){filt=c.dataset.f;document.querySelectorAll('#chips .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));renderGrid();return;}
  const d=e.target.closest('#cchips .chip');if(d){cfilt=d.dataset.f;renderLibrary();}});
+$('q').addEventListener('input',doSearch);
 window.addEventListener('hashchange',()=>{closeS();route();scrollTo(0,0);});
 Promise.all([fetch('data/issues.json').then(r=>r.json()),fetch('data/classics.json').then(r=>r.ok?r.json():[]).catch(()=>[])])
  .then(([i,c])=>{ISSUES=i.sort((a,b)=>b.id.localeCompare(a.id));CLASSICS=c;route();})
