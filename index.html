@@ -57,6 +57,8 @@ h2.sec::before{content:"";width:10px;height:22px;background:var(--accent);displa
 .line{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
 .who{font-size:11px;font-weight:900;color:#fff;padding:4px 8px;white-space:nowrap;background:var(--k,var(--ink))}
 .line p{margin:0;font-size:14px}
+.who.chief{background:var(--accent);color:#fff}
+.who.plain{background:var(--ink);color:var(--paper)}
 /* chips + grid */
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .chip{border:2px solid var(--ink);background:transparent;color:var(--ink);font:inherit;font-weight:700;font-size:13px;padding:5px 12px;cursor:pointer}
@@ -202,7 +204,7 @@ function renderIssue(I){
    <div class="art">${motif(T.cat,7)}<span class="cat">${cat(T.cat).n}</span>${rmark(tr)}</div>
    <div class="txt"><div class="badges"><span class="badge hot">今週のトップ</span>${badges(T,k)}</div>
    <h3>${esc(T.head)}</h3><p>${esc(T.lead)}</p><div class="stars">${stars(T.score)}</div><div style="font-size:12px;color:var(--muted)">${esc(T.journal)}</div></div></button>`;
-  $('room').innerHTML=(I.room||[]).map(l=>`<div class="line"><span class="who" style="--k:${l.cat?cat(l.cat).k:'var(--ink)'}">${esc(l.who)}</span><p>${esc(l.say)}</p></div>`).join('');
+  $('room').innerHTML=(I.room||[]).map(l=>`<div class="line"><span class="who${l.cat?'':(l.who==='編集長'?' chief':' plain')}" style="${l.cat?'--k:'+cat(l.cat).k:''}">${esc(l.who)}</span><p>${esc(l.say)}</p></div>`).join('');
   const used=[...new Set(A.map(a=>a.cat))];
   $('chips').innerHTML=[['all','すべて'],...used.map(c=>[c,cat(c).n])].map(([c,n])=>`<button class="chip" data-f="${c}" aria-pressed="${c===filt}">${n}</button>`).join('');
   renderGrid();
