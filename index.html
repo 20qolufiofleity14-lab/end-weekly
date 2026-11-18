@@ -132,6 +132,14 @@ h2.sec::before{content:"";width:10px;height:22px;background:var(--accent);displa
 .hit{display:grid;gap:4px;text-align:left;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--k);padding:10px 14px;cursor:pointer;color:inherit;font:inherit;width:100%}
 .hit b{font-size:15px}.hit small{font-size:12px;color:var(--muted)}
 .hit.read{opacity:.62}
+.fab{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:9;display:flex;align-items:center;gap:8px;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:900;font-size:14px;padding:11px 16px 11px 13px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.35);cursor:pointer}
+.fab[hidden]{display:none}
+.fab svg{width:20px;height:20px}
+.fab b{background:#fff;color:var(--accent);border-radius:999px;min-width:22px;padding:1px 6px;font-size:12px;text-align:center}
+.fab:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.flash{animation:flash 1.4s ease-out}
+@keyframes flash{0%,40%{box-shadow:0 0 0 4px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.flash{animation:none;outline:3px solid var(--accent)}}
 .foot{font-size:12px;color:var(--muted);margin-top:32px;border-top:1px solid var(--line);padding-top:12px}
 @media (min-width:760px){.sheet{align-items:center}.panel{max-height:88%}}
 </style>
@@ -170,6 +178,7 @@ h2.sec::before{content:"";width:10px;height:22px;background:var(--accent);displa
   <div id="library"></div>
  </section>
 </main>
+<button class="fab" id="fab" hidden aria-label="未読の記事へ移動"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>未読へ<b id="fabn">0</b></button>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-title"><div class="panel" id="panel"></div></div>
 <script>
 const CAT={dm:{n:'糖尿病・肥満',k:'var(--c-dm)'},thy:{n:'甲状腺・骨Ca',k:'var(--c-thy)'},gro:{n:'成長・思春期',k:'var(--c-gro)'},adr:{n:'副腎・性分化',k:'var(--c-adr)'},met:{n:'先天代謝',k:'var(--c-met)'}};
@@ -213,6 +222,18 @@ function renderIssue(I){
   $('oe').innerHTML=I.oe?`<h3>${esc(I.oe.title)}</h3><p>${esc(I.oe.body)}</p>${I.oe.items?I.oe.items.map(x=>`<p style="margin-top:8px;color:var(--ink)"><b>${esc(x.q)}</b><br>${esc(x.a)}</p>`).join(''):''}`:'<p>今号はお休み（隔週掲載）。</p>';
   $('foot').textContent=I.foot||'';
 }
+function unreadIn(I){const rs=readSet();const T=I.articles.find(a=>a.id===I.top)||I.articles[0];return [T,...I.articles.filter(a=>a!==T)].filter(a=>!rs.has(I.id+':'+a.id));}
+function updFab(){const f=$('fab');if(!f||!ISSUES.length)return;const tot=ISSUES.reduce((n,I)=>n+unreadIn(I).length,0);
+ f.hidden=!tot||$('sheet').classList.contains('open');$('fabn').textContent=tot;}
+function goUnread(){
+ if(!$('v-issue').hidden&&cur&&unreadIn(cur).length){const a=unreadIn(cur)[0];
+  if(filt!=='all'&&a.cat!==filt){filt='all';document.querySelectorAll('#chips .chip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.f==='all'));renderGrid();}
+  const el=document.querySelector(`.top[data-id="${a.id}"],.tile[data-id="${a.id}"]`);if(!el)return;
+  el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+  el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');return;}
+ const I=ISSUES.find(x=>unreadIn(x).length);if(!I)return;
+ location.hash=I===ISSUES[0]?'':'issue-'+I.id;if(I===ISSUES[0]&&!location.hash)route();
+ setTimeout(goUnread,350);}
 function renderGrid(){
   const T=cur.top;const list=cur.articles.filter(a=>a.id!==T&&(filt==='all'||a.cat===filt));const rs=readSet();const rd=a=>rs.has(cur.id+':'+a.id);const nr=cur.articles.filter(rd).length,N=cur.articles.length;
   $('prog').className='prog'+(nr===N?' done':'');$('prog').innerHTML=`<span>${nr===N?'今号はぜんぶ読んだ！':'今号 '+nr+' / '+N+' 本 読んだ'}</span><span class="bar"><i style="width:${Math.round(nr/N*100)}%"></i></span>`;
@@ -236,7 +257,7 @@ function doSearch(){const q=norm($('q').value).trim();if(!q){$('hits').innerHTML
  ISSUES.forEach(I=>I.articles.forEach(a=>{const txt=norm([a.head,a.lead,a.title,a.oneline,a.journal,(a.tags||[]).join(' '),cat(a.cat).n,(a.points||[]).map(p=>p[1]).join(' '),a.result,a.clinic].join(' '));
   if(ws.every(w=>txt.includes(w)))out.push([I,a]);}));
  $('hits').innerHTML=out.length?`<p style="margin:0;font-size:13px;color:var(--muted)">${out.length}件</p>`+out.map(([I,a])=>`<button class="hit${rs.has(I.id+':'+a.id)?' read':''}" data-iss="${I.id}" data-id="${a.id}" style="--k:${cat(a.cat).k}"><small>${esc(I.issue)}・${cat(a.cat).n}・${esc(a.journal)}${rs.has(I.id+':'+a.id)?'・既読':''}</small><b>${esc(a.head)}</b><small>${esc(a.oneline||a.lead)}</small></button>`).join(''):'<p>見つかりませんでした。別の言葉（英語名や略語）でも試してみてね。</p>';}
-function route(){
+function route(){setTimeout(updFab,0);
   const h=location.hash.slice(1);
   ['issue','archive','classics'].forEach(v=>$('v-'+v).hidden=true);
   ['latest','archive','classics'].forEach(v=>$('nav-'+v).removeAttribute('aria-current'));
@@ -264,17 +285,18 @@ function openA(id){const a=cur.articles.find(x=>x.id===id);if(!a)return;logRead(
   <div><dt>校閲メモ</dt><dd>${esc(a.check)}</dd></div>
  </dl>
  <p class="src">${esc(a.journal)}　<a href="${a.url?esc(a.url):`https://pubmed.ncbi.nlm.nih.gov/${esc(a.pmid)}/`}" target="_blank" rel="noopener">${a.pmid?`PubMedで読む（PMID ${esc(a.pmid)}）`:'出典を読む'}</a>${a.doi?` ・ <a href="https://doi.org/${esc(a.doi)}" target="_blank" rel="noopener">DOI</a>`:''}</p></div>`;
- $('sheet').classList.add('open');$('panel').scrollTop=0;try{$('cl').focus({preventScroll:true});}catch(e){}requestAnimationFrame(()=>{$('panel').scrollTop=0;});$('cl').onclick=closeS;
+ $('sheet').classList.add('open');$('fab').hidden=true;$('panel').scrollTop=0;try{$('cl').focus({preventScroll:true});}catch(e){}requestAnimationFrame(()=>{$('panel').scrollTop=0;});$('cl').onclick=closeS;
  $('cp').onclick=async e=>{try{await navigator.clipboard.writeText(a.oneline+'（'+a.journal+(a.pmid?' PMID '+a.pmid:'')+'）');e.target.textContent='コピーしました';}catch(_){e.target.textContent='長押しで選んでコピーしてね';}};}
 /* アカデミー（同じ github.io）のランプ用：記事を開いた日を記録 */
 function logRead(id){try{const K='endo_news_v1';const o=JSON.parse(localStorage.getItem(K)||'{}');o.log=o.log||{};const d=new Date(),k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();const L=o.log[k]=o.log[k]||[];const u=cur.id+':'+id;if(!L.includes(u))L.push(u);localStorage.setItem(K,JSON.stringify(o));}catch(e){}}
-function closeS(){const w=$('sheet').classList.contains('open');$('sheet').classList.remove('open');if(w&&cur&&!$('v-issue').hidden)renderGrid();if(w&&!$('v-archive').hidden){route();doSearch();}}
+function closeS(){setTimeout(updFab,0);const w=$('sheet').classList.contains('open');$('sheet').classList.remove('open');if(w&&cur&&!$('v-issue').hidden)renderGrid();if(w&&!$('v-archive').hidden){route();doSearch();}}
 $('sheet').addEventListener('click',e=>{if(e.target===$('sheet'))closeS();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeS();});
 document.body.addEventListener('click',e=>{const h=e.target.closest('.hit');if(h){cur=ISSUES.find(x=>x.id===h.dataset.iss);openA(h.dataset.id);return;}const b=e.target.closest('.top,.tile');if(b){openA(b.dataset.id);return;}
  const c=e.target.closest('#chips .chip');if(c){filt=c.dataset.f;document.querySelectorAll('#chips .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));renderGrid();return;}
  const d=e.target.closest('#cchips .chip');if(d){cfilt=d.dataset.f;renderLibrary();}});
 $('q').addEventListener('input',doSearch);
+$('fab').addEventListener('click',goUnread);
 try{const h=localStorage.getItem('hub_home_url');if(h&&/^https:\/\/20qolufiofleity14-lab\.github\.io\//.test(h))$('nav-home').href=h;}catch(e){}
 window.addEventListener('hashchange',()=>{closeS();route();scrollTo(0,0);});
 Promise.all([fetch('data/issues.json').then(r=>r.json()),fetch('data/classics.json').then(r=>r.ok?r.json():[]).catch(()=>[])])
