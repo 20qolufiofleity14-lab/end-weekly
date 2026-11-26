@@ -13,7 +13,6 @@ AI編集部が毎週まとめる内分泌の最新知見サイト（GitHub Pages
 ```
 { "id": "YYYY-MM-DD", "issue": "Vol.N", "date": "表示用の日付と対象期間", "top": "記事id",
   "room": [ {"who": "編集長|糖尿病デスク|…|校閲", "cat": "dm", "say": "編集会議での発言"} ],
-  "oe": {"title": "…", "body": "…", "items": [{"q": "質問", "a": "要点"}]} または null,
   "foot": "出典と注意書き",
   "articles": [ {
     "id": "英数字", "cat": "dm|thy|gro|adr|met", "tags": ["誌名","RCT","小児"], "score": 1-5,
